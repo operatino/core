@@ -9,7 +9,7 @@
   "homepage": "http://shwr.me/",
   "repository": {
     "type": "git",
-    "url": "git://github.com/shower/core.git"
+    "url": "git://github.com/operatino/core.git"
   },
   "bugs": {
     "url": "http://github.com/shower/shower/issues"
