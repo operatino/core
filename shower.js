@@ -365,7 +365,8 @@ window.shower = (function(window, document, undefined) {
 	* @returns {Number|Boolean}
 	*/
 	shower.go = function(slideNumber, callback) {
-		var slide;
+		var slide,
+            goEvent = new Event('switchSlide');
 
 		if ( ! shower._isNumber(slideNumber)) {
 			throw new Error('Gimme slide number as Number, baby!');
@@ -392,6 +393,8 @@ window.shower = (function(window, document, undefined) {
 		if (typeof(callback) === 'function') {
 			callback();
 		}
+
+        document.dispatchEvent(goEvent);
 
 		return slideNumber;
 	};
