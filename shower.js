@@ -13,8 +13,8 @@ window.shower = (function(window, document, undefined) {
 		slides = [],
 		progress = [],
 		timer,
-		isHistoryApiSupported = !!(window.history && window.history.pushState),
-		debugMode = window.debugMode || false;
+        isHistoryApiSupported = !!(window.history && window.history.pushState),
+        debugMode = window.debugMode || false;
 
 	/**
 	 * Slide constructor
@@ -839,12 +839,12 @@ window.shower = (function(window, document, undefined) {
 
 	window.addEventListener('popstate', function() {
 		var currentSlideNumber = shower.getCurrentSlideNumber(),
-			isSlideMode = body.classList.contains('full') || shower.isSlideMode();
+            isSlideMode = body.classList.contains('full') || shower.isSlideMode();
 
         //Go to first slide, if hash id is invalid.
         //Same check is located in DOMContentLoaded event, but it not fires on hash change.
-		if (currentSlideNumber === -1 && isSlideMode) {
-			shower.go(0);
+        if (currentSlideNumber === -1 && isSlideMode) {
+            shower.go(0);
 		}
 
 		if (shower.isListMode()) {
