@@ -9,12 +9,15 @@ if(!(window.shower && window.shower.init)) {
 window.shower = (function(window, document, undefined) {
 	var shower = {},
 		url = window.location,
+		console = window.console,
 		body = document.body,
 		slides = [],
 		progress = [],
 		timer,
-        isHistoryApiSupported = !!(window.history && window.history.pushState),
-        debugMode = window.debugMode || false;
+		isHistoryApiSupported = !!(window.history && window.history.pushState);
+
+	// Shower debug mode env, could be overridden before shower.init
+	shower.debugMode = false;
 
 	/**
 	 * Slide constructor
@@ -432,6 +435,7 @@ window.shower = (function(window, document, undefined) {
 		var currentSlideNumber = shower.getCurrentSlideNumber(),
 			slide = shower.slideList[currentSlideNumber];
 
+
 		if (shower.isSlideMode()) {
 			slide.stopTimer();
 			slide.next(shower);
@@ -680,7 +684,7 @@ window.shower = (function(window, document, undefined) {
 	* @returns {Boolean}
 	*/
 	shower.updateProgress = function(slideNumber) {
-		// if progress bar doesn't exist
+		// If progress bar doesn't exist
 		if (null === progress) {
 			return false;
 		}
@@ -732,7 +736,7 @@ window.shower = (function(window, document, undefined) {
 	* Clear presenter notes in console (only for Slide Mode).
 	*/
 	shower.clearPresenterNotes = function() {
-		if (shower.isSlideMode() && window.console && window.console.clear && !debugMode) {
+		if (shower.isSlideMode() && console && console.clear && !shower.debugMode) {
 			console.clear();
 		}
 	};
@@ -744,7 +748,7 @@ window.shower = (function(window, document, undefined) {
 	shower.showPresenterNotes = function(slideNumber) {
 		shower.clearPresenterNotes();
 
-		if (window.console) {
+		if (console) {
 			slideNumber = shower._normalizeSlideNumber(slideNumber);
 
 			var slideId = shower.slideList[slideNumber].id,
@@ -819,13 +823,18 @@ window.shower = (function(window, document, undefined) {
 		}
 	};
 
-	// Event handlers
+	// For overriding shower properties before init
+	for (var overridingProp in window.shower) {
+		shower[overridingProp] = window.shower[overridingProp];
+		console.log(shower.debugMode);
+	}
 
+	// Event handlers
 	window.addEventListener('DOMContentLoaded', function() {
 		var currentSlideNumber = shower.getCurrentSlideNumber(),
 			isSlideMode = body.classList.contains('full') || shower.isSlideMode();
 
-        //Go to first slide, if hash id is invalid.
+		// Go to first slide, if hash id is invalid
 		if (currentSlideNumber === -1 && isSlideMode) {
 			shower.go(0);
 		} else if (currentSlideNumber === 0 || isSlideMode) {
@@ -839,12 +848,13 @@ window.shower = (function(window, document, undefined) {
 
 	window.addEventListener('popstate', function() {
 		var currentSlideNumber = shower.getCurrentSlideNumber(),
-            isSlideMode = body.classList.contains('full') || shower.isSlideMode();
+			isSlideMode = body.classList.contains('full') || shower.isSlideMode();
 
-        //Go to first slide, if hash id is invalid.
-        //Same check is located in DOMContentLoaded event, but it not fires on hash change.
-        if (currentSlideNumber === -1 && isSlideMode) {
-            shower.go(0);
+		// Go to first slide, if hash id is invalid.
+		// Same check is located in DOMContentLoaded event,
+		// but it not fires on hash change
+		if (currentSlideNumber === -1 && isSlideMode) {
+			shower.go(0);
 		}
 
 		if (shower.isListMode()) {
