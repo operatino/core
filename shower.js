@@ -197,6 +197,11 @@ window.shower = (function(window, document, undefined) {
 	shower.init = function(slideSelector, progressSelector) {
 		var timing;
 
+		if (shower.debugMode) {
+			body.classList.add('debug');
+			console.log('Debug mode on')
+		}
+
 		slideSelector = slideSelector || '.slide';
 		progressSelector = progressSelector || 'div.progress div';
 
@@ -607,7 +612,8 @@ window.shower = (function(window, document, undefined) {
 	/**
 	* Get current slide number. Starts from zero. Warning: when you have
 	* slide number 1 in URL this method will return 0.
-	* If there is no slide number in url, AND slide does not exist, return -1.
+	* If slide does not exist, return -1.
+	* If there is no hash in url, return -2.
 	* @returns {Number}
 	*/
 	shower.getCurrentSlideNumber = function() {
@@ -615,7 +621,7 @@ window.shower = (function(window, document, undefined) {
 			currentSlideId = url.hash.substr(1);
 
 		if (currentSlideId === '') {
-			return -1;
+			return -2;
 		}
 
 		// As fast as you can ;-)
@@ -826,7 +832,6 @@ window.shower = (function(window, document, undefined) {
 	// For overriding shower properties before init
 	for (var overridingProp in window.shower) {
 		shower[overridingProp] = window.shower[overridingProp];
-		console.log(shower.debugMode);
 	}
 
 	// Event handlers
@@ -834,12 +839,18 @@ window.shower = (function(window, document, undefined) {
 		var currentSlideNumber = shower.getCurrentSlideNumber(),
 			isSlideMode = body.classList.contains('full') || shower.isSlideMode();
 
-		// Go to first slide, if hash id is invalid
-		if (currentSlideNumber === -1) {
+		// Go to first slide, if hash id is invalid or isn't set.
+		if (isSlideMode && currentSlideNumber < 0) {
 			shower.go(0);
-		} else if (currentSlideNumber === 0 || isSlideMode) {
-			shower.go(currentSlideNumber);
+
+		// In List mode, go to first slide only if hash id is invalid.
+		} else if (currentSlideNumber === -1) {
+			shower.go(0);
 		}
+
+		if (currentSlideNumber >= 0) {
+            shower.go(currentSlideNumber);
+        }
 
 		if (isSlideMode) {
 			shower.enterSlideMode();
@@ -850,10 +861,14 @@ window.shower = (function(window, document, undefined) {
 		var currentSlideNumber = shower.getCurrentSlideNumber(),
 			isSlideMode = body.classList.contains('full') || shower.isSlideMode();
 
-		// Go to first slide, if hash id is invalid.
+		// Go to first slide, if hash id is invalid or isn't set.
 		// Same check is located in DOMContentLoaded event,
 		// but it not fires on hash change
-		if (currentSlideNumber === -1) {
+		if (isSlideMode && currentSlideNumber < 0) {
+			shower.go(0);
+
+		// In List mode, go to first slide only if hash id is invalid.
+		} else if (currentSlideNumber === -1) {
 			shower.go(0);
 		}
 
@@ -872,7 +887,7 @@ window.shower = (function(window, document, undefined) {
 
 	document.addEventListener('keydown', function(e) {
 		var currentSlideNumber = shower.getCurrentSlideNumber(),
-			slide = shower.slideList[ currentSlideNumber !== -1 ? currentSlideNumber : 0 ],
+			slide = shower.slideList[ currentSlideNumber > 0 ? currentSlideNumber : 0 ],
 			slideNumber;
 
 		switch (e.which) {
